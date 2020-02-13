@@ -1,0 +1,75 @@
+{#继承基础页面#}
+{% extends 'base.html' %}
+
+{#引入静态文件#}
+{% load static %}
+{% block header_extends %}
+  <link rel="stylesheet" href="{% static 'blog/css/blog.css' %}">
+{% endblock %}
+
+{#页面标题#}
+{% block title %}
+  我的网站
+{% endblock %}
+
+{#导航栏高亮显示#}
+{% block nav_blog_active %}active{% endblock %}
+
+{#主体内容#}
+{% block content %}
+  <div class="container">
+    {#  一行 #}
+    <div class="row">
+      {#  第一列 博客列表#}
+      <div class="col-xs-12 col-sm-8 col-md-9 col-lg-10">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">{% block blog_list_title %}博客列表 【一共有篇{{ blogs | length }}篇博客】{% endblock %}</div>
+          <div class="panel-body">
+            {% for blog in blogs %}
+              {#  blog 是每一篇博客 #}
+              <div class="blog">
+                <a href="{% url 'blog_detail' blog.pk %}">
+                  <h3>{{ blog.title }}</h3>
+                </a>
+                <p class="blog-info">
+                  <span class="glyphicon glyphicon-tag"></span>：<a href="{% url 'blogs_with_type' blog.blog_type.pk %}">{{ blog.blog_type }}</a>
+                  <span class="glyphicon glyphicon-time"></span>：{{ blog.created_time |date:'Y-m-d H:m:s' }}
+                </p>
+                <p>{{ blog.content|truncatechars:120 }}</p>
+              </div>
+            {% empty %}
+              <div class="blog">
+                <h3>==========================暂无博客，敬请期待====================</h3>
+              </div>
+            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+
+
+      {#  第二列 博客类型列表#}
+      <div class="hidden-xs col-sm-4 col-md-3 col-lg-2">
+        {#      面板 #}
+        <div class="panel panel-default">
+          <div class="panel-heading">博客分类</div>
+          <div class="panel-body">
+            <ul>
+              {% for blog_type in blog_types %}
+                <li><a href="{% url 'blogs_with_type' blog_type.pk %}">{{ blog_type.type_name }}</a></li>
+              {% empty %}
+                <li>====暂无博客分类=====</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {# rowend #}
+  </div>
+
+{% endblock %}
+
+
