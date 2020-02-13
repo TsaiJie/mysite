@@ -88,17 +88,17 @@
               </li>
             </ul>
             <p> 一共有篇{{ blogs.paginator.count }}篇博客,
-                当前是第{{ page_of_blogs.number }}页，
-                共{{ page_of_blogs.paginator.num_pages }}页
+              当前是第{{ page_of_blogs.number }}页，
+              共{{ page_of_blogs.paginator.num_pages }}页
             </p>
           </nav>
         </div>
       </div>
 
 
-      {#  第二列 博客类型列表#}
+      {#  第二列 分类#}
       <div class="hidden-xs col-sm-4 col-md-3 col-lg-2">
-        {#      面板 #}
+        {# 博客分类面板 #}
         <div class="panel panel-default">
           <div class="panel-heading">博客分类</div>
           <div class="panel-body">
@@ -111,6 +111,21 @@
             </ul>
           </div>
         </div>
+        {# 按年分类#}
+        <div class="panel panel-default">
+          <div class="panel-heading">日期归档</div>
+          <div class="panel-body">
+            <ul>
+              {% for blog_date in blog_dates %}
+                <li>
+                  <a href="{% url 'blogs_with_date' blog_date.year blog_date.month %}">{{ blog_date|date:"Y年m月" }}</a>
+                </li>
+              {% endfor %}
+
+            </ul>
+          </div>
+        </div>
+
       </div>
 
     </div>
