@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -22,3 +21,7 @@ class Blog(models.Model):
 
     def __str__(self):
         return "<Blog: %s>" % self.title
+
+    #  设置排序
+    class Meta:
+        ordering = ['-created_time']
