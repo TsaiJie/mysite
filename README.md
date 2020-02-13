@@ -147,5 +147,53 @@ STATICFILES_DIRS = [
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 ```
 
+```python
+# mysql中无法同时获取年和月份获取的数据为空，因为不支持TIME_ZONE = 'Asia/Shanghai' 需要把USE_TZ = True 改为False
+blogs_all_list = Blog.objects.filter(created_time__year=year, created_time__month=month)
+```
+
+
+
+## 富文本编辑器
+
+django-ckeditor配置 富文本编辑器
+
+```
+1. 安装
+pip install django-ckeditor
+2.注册
+'ckeditor'
+3. 配置model
+把字段改为RichTextField
+```
+
+
+
+```python
+配置上传图片功能
+1. 安装 pip install pillow
+2. 注册应用 'ckeditor_uploader'
+3. 配置settings 
+# 在根目录创建 media文件夹
+# media 保存上传的文件
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 配置ckeditor
+CKEDITOR_UPLOAD_PATH = 'upload/'
+4. 配置url
+from django.conf import settings
+from django.conf.urls.static import static
+urlpatterns = [
+    ...
+    path('ckeditor', include('ckeditor_uploader.urls')),
+]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+5.配置model
+from ckeditor_uploader.fields import RichTextUploadingField
+content = RichTextUploadingField()
+```
+
 
 

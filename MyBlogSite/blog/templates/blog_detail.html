@@ -27,7 +27,7 @@
           <li>博客类型：<a href="{% url 'blogs_with_type' blog.blog_type.pk %}">{{ blog.blog_type }} </a></li>
         </ul>
 
-        <div class="blog-content">{{ blog.content }}</div>
+        <div class="blog-content">{{ blog.content | safe}}</div>
         <div class="blog-more">
           <p>上一篇:
             {% if previous_blog %}
