@@ -1,10 +1,12 @@
 {#继承基础页面#}
-{% extends '../base.html' %}
+{% extends 'base.html' %}
 
 {#页面标题#}
 {% block title %}
   我的网站
 {% endblock %}
+
+{% block nav_blog_active %}active{% endblock %}
 
 {#主体内容#}
 {% block content %}

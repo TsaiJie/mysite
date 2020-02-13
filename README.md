@@ -129,3 +129,23 @@ def blogs_with_type(request, blog_type_pk):
 {% block content %}...{% endblock %}
 ```
 
+静态文件配置
+
+```python
+STATIC_URL = '/static/'
+# 设置静态文件的路径
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+```
+
+静态文件加载
+
+```html
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+```
+
+
+
