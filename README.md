@@ -73,3 +73,59 @@ class BlogAdmin(admin.ModelAdmin):
 
 ### url 的基本配置
 
+```python
+from django.contrib import admin
+from django.urls import path, re_path
+from . import views
+
+# /blog
+urlpatterns = [
+    # /blog/1
+    path('<int:blog_pk>', views.blog_detail, name='blog_detail'),
+    path('type/<int:blog_type_pk>', views.blogs_with_type, name="blogs_with_type"),
+    path('', views.blog_list, name="blog_list")
+]
+
+```
+### views基本配置
+
+```python
+from django.shortcuts import render, get_object_or_404
+from .models import Blog, BlogType
+
+
+# Create your views here.
+# 获取所有的博客进行显示
+def blog_list(request):
+    context = {}
+    context['blogs'] = Blog.objects.all()
+    return render(request, 'blog/blog_list.html', context)
+
+
+# 根据博客的id获取对应博客数据，并且渲染出来
+def blog_detail(request, blog_pk):
+    context = {}
+    context['blog'] = get_object_or_404(Blog, pk=blog_pk)
+    return render(request, 'blog/blog_detail.html', context)
+
+
+def blogs_with_type(request, blog_type_pk):
+    context = {}
+    print(blog_type_pk)
+    blog_type = get_object_or_404(BlogType, pk=blog_type_pk)
+    context['blogs'] = Blog.objects.filter(blog_type=blog_type)
+    context['blog_type'] = blog_type
+    return render(request, 'blog/blog_with_type.html', context)
+
+```
+
+### 二 、页面优化
+
+把页面的相同部分抽取出来作为基础页面，其他页面继承这个页面，只在页面中实现自己的页面部分。
+
+```html
+{% extends  'base.html' %}
+{% block title %}...{% endblock %}
+{% block content %}...{% endblock %}
+```
+
