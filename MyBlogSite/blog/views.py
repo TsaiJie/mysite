@@ -51,7 +51,6 @@ def get_blog_list_common_data(request, blogs_all_list):
                                          created_time__month=blog_date.month).count()
         blog_dates_dict[blog_date] = blog_count
 
-
     context = {}
     # 获取页码值
     context['page_range'] = page_range
@@ -105,5 +104,11 @@ def blog_detail(request, blog_pk):
     context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
 
     context['blog'] = blog
+    blog = get_object_or_404(Blog, pk=blog_pk)
+    if not request.COOKIES.get('blog_%s_read' % blog_pk):
+        blog.read_num += 1
+        blog.save()
 
-    return render(request, 'blog_detail.html', context)
+    response = render(request, 'blog_detail.html', context)
+    response.set_cookie('blog_%s_read' % blog_pk, 'true')
+    return response
