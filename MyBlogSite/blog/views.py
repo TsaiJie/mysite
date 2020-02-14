@@ -113,5 +113,5 @@ def blog_detail(request, blog_pk):
     read_cookie_key = read_statistics_once_read(request, blog)
 
     response = render(request, 'blog_detail.html', context)
-    response.set_cookie(read_cookie_key, 'true')  # 阅读cookie标记
+    response.set_cookie(read_cookie_key, 'true', max_age=600)  # 阅读cookie标记
     return response

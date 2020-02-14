@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-
+from django.utils import timezone
 from django.db.models.fields import exceptions
 
 
@@ -25,3 +25,12 @@ class ReadNumExpandMethod(object):
         except exceptions.ObjectDoesNotExist:
             # 如果没有该对象则返回0
             return 0
+
+
+class ReadDetail(models.Model):
+    read_num = models.IntegerField(default=0)
+    # 默认为当天的
+    date = models.DateField(default=timezone.now)
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
