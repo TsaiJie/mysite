@@ -264,3 +264,89 @@ def blog_detail(request, blog_pk):
 
 3.设置为通用的计数模型，可以对任意模型计数
 
+使用ContentType，这个模型关联了我们创建的所有模型
+
+```python
+#read_statistics app  的model中
+
+from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+
+# Create your models here.
+class ReadNum(models.Model):
+    read_num = models.IntegerField(default=0)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+```
+
+```python
+# blog app 的model中
+from read_statistics.models import ReadNum
+from django.contrib.contenttypes.models import ContentType
+
+class Blog(models.Model):
+    title = models.CharField(max_length=50)
+    blog_type = models.ForeignKey(BlogType, on_delete=models.DO_NOTHING)
+    content = RichTextUploadingField()
+    author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    created_time = models.DateTimeField(auto_now_add=True)
+    last_updated_time = models.DateTimeField(auto_now=True)
+
+    def get_read_num(self):
+        try:
+            # 首先从ContentType中获取blog对象
+            ct = ContentType.objects.get_for_model(self)
+            # 然后根据获取的对象，在ReadNum进行查找，它的阅读数量对象
+            readnum = ReadNum.objects.get(content_type=ct, object_id=self.pk)
+            return readnum.read_num
+        except exceptions.ObjectDoesNotExist:
+            # 如果没有该对象则返回0
+            return 0
+
+    def __str__(self):
+        return "<Blog: %s>" % self.title
+
+    #  设置排序规则
+    class Meta:
+        ordering = ['-created_time']
+```
+
+```python
+# views中
+from read_statistics.models import ReadNum
+from django.contrib.contenttypes.models import ContentType
+
+# 根据博客的id获取对应博客数据，并且渲染出来
+def blog_detail(request, blog_pk):
+    context = {}
+    # 当前博客
+    blog = get_object_or_404(Blog, pk=blog_pk)
+    # 当前博客的上一条博客
+    context['previous_blog'] = Blog.objects.filter(created_time__gt=blog.created_time).last()
+    # 当前博客的下一条博客
+    context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
+
+    context['blog'] = blog
+    blog = get_object_or_404(Blog, pk=blog_pk)
+    if not request.COOKIES.get('blog_%s_read' % blog_pk):
+        ct = ContentType.objects.get_for_model(blog)
+        if ReadNum.objects.filter(content_type=ct, object_id=blog.pk).count():
+            #  存在记录
+            readnum = ReadNum.objects.get(content_type=ct, object_id=blog.pk)
+        else:
+            # 不存在记录
+            readnum = ReadNum(content_type=ct, object_id=blog.pk)
+        # 计数加一
+        readnum.read_num += 1
+        readnum.save()
+
+    response = render(request, 'blog_detail.html', context)
+    response.set_cookie('blog_%s_read' % blog_pk, 'true')
+    return response
+```
+

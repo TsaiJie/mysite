@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
 
+from read_statistics.models import ReadNum
+from django.contrib.contenttypes.models import ContentType
+
 from django.db.models.fields import exceptions
 
 
@@ -24,7 +27,11 @@ class Blog(models.Model):
 
     def get_read_num(self):
         try:
-            return self.readnum.read_num
+            # 首先从ContentType中获取blog对象
+            ct = ContentType.objects.get_for_model(self)
+            # 然后根据获取的对象，在ReadNum进行查找，它的阅读数量对象
+            readnum = ReadNum.objects.get(content_type=ct, object_id=self.pk)
+            return readnum.read_num
         except exceptions.ObjectDoesNotExist:
             # 如果没有该对象则返回0
             return 0
@@ -35,8 +42,3 @@ class Blog(models.Model):
     #  设置排序规则
     class Meta:
         ordering = ['-created_time']
-
-
-class ReadNum(models.Model):
-    read_num = models.IntegerField(default=0)
-    blog = models.OneToOneField(Blog, on_delete=models.DO_NOTHING)

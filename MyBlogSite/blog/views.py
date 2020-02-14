@@ -1,9 +1,12 @@
 from django.db.models import Count
 from django.shortcuts import render, get_object_or_404
-from .models import Blog, BlogType, ReadNum
+from .models import Blog, BlogType
 from django.conf import settings
 # 引入分页器
 from django.core.paginator import Paginator
+
+from read_statistics.models import ReadNum
+from django.contrib.contenttypes.models import ContentType
 
 
 def get_blog_list_common_data(request, blogs_all_list):
@@ -106,12 +109,13 @@ def blog_detail(request, blog_pk):
     context['blog'] = blog
     blog = get_object_or_404(Blog, pk=blog_pk)
     if not request.COOKIES.get('blog_%s_read' % blog_pk):
-        if ReadNum.objects.filter(blog=blog).count():
+        ct = ContentType.objects.get_for_model(blog)
+        if ReadNum.objects.filter(content_type=ct, object_id=blog.pk).count():
             #  存在记录
-            readnum = ReadNum.objects.get(blog=blog)
+            readnum = ReadNum.objects.get(content_type=ct, object_id=blog.pk)
         else:
             # 不存在记录
-            readnum = ReadNum(blog=blog)
+            readnum = ReadNum(content_type=ct, object_id=blog.pk)
         # 计数加一
         readnum.read_num += 1
         readnum.save()
