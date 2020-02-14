@@ -15,9 +15,56 @@
 
 {% block content %}
   <h3 class="home-content">欢迎访问我的网站，随便看</h3>
-{#  <p>{{ read_nums }}</p>#}
+  {#  <p>{{ read_nums }}</p>#}
   <!-- 图表容器 DOM -->
   <div id="container"></div>
+
+  {#  今天24小时内的热门博客#}
+  <div class="hot-data">
+    <h3>今天热门点击</h3>
+    <ul>
+      {% for hot_data in today_hot_data %}
+        <li>
+          <a href="{% url 'blog_detail' hot_data.content_object.id %}">
+            {{ hot_data.content_object.title }}({{ hot_data.read_num }})
+          </a>
+        </li>
+      {% empty %}
+        <li>今天暂无热门博客</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {#  昨天的热门博客#}
+  <div class="hot-data">
+    <h3>昨天热门点击</h3>
+    <ul>
+      {% for hot_data in yesterday_hot_data %}
+        <li>
+          <a href="{% url 'blog_detail' hot_data.content_object.id %}">
+            {{ hot_data.content_object.title }}({{ hot_data.read_num }})
+          </a>
+        </li>
+      {% empty %}
+        <li>昨天暂无热门博客</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="hot-data">
+    <h3>近7天热门点击</h3>
+    <ul>
+      {% for hot_blog in hot_blogs_for_7_days %}
+        <li>
+          <a href="{% url 'blog_detail' hot_blog.id %}">
+            {{ hot_blog.title }}({{ hot_blog.read_num_sum }})
+          </a>
+        </li>
+      {% empty %}
+        <li>昨天暂无热门博客</li>
+      {% endfor %}
+    </ul>
+  </div>
+
   <script>
       // 图表配置
       var options = {
@@ -30,6 +77,7 @@
           xAxis: {
               categories: {{ dates|safe }},  // x 轴分类
               tickmarkPlacement: 'on',
+              title: {text: '前七日阅读量变化'}
           },
           yAxis: {
               title: {
