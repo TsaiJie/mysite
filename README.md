@@ -195,5 +195,72 @@ from ckeditor_uploader.fields import RichTextUploadingField
 content = RichTextUploadingField()
 ```
 
+### 博客阅读统计
 
+当进入具体一篇博客的时候，判断博客该博客是否拥有COOKIES的值，如果有则不作阅读数量加一的操作，如果没有则做数量加一的操作。
+
+1.简单有bug的阅读统计
+
+```python
+# 在blog model中添加了read_num字段
+    blog = get_object_or_404(Blog, pk=blog_pk)
+    if not request.COOKIES.get('blog_%s_read' % blog_pk):
+        blog.read_num += 1
+        blog.save()
+
+    response = render(request, 'blog_detail.html', context)
+    response.set_cookie('blog_%s_read' % blog_pk, 'true')
+    return response
+```
+
+
+
+2.单独作为一个model
+
+```python
+# model中
+from django.db.models.fields import exceptions
+class ReadNum(models.Model):
+    read_num = models.IntegerField(default=0)
+    blog = models.OneToOneField(Blog, on_delete=models.DO_NOTHING)
+class Blog(models.Model):
+    ...
+    def get_read_num(self):
+        try:
+            return self.readnum.read_num
+        except exceptions.ObjectDoesNotExist:
+            # 如果没有该对象则返回0
+            return 0
+	...
+ 
+# admin中
+@admin.register(Blog)
+class BlogAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'blog_type', 'get_read_num', 'created_time', 'last_updated_time',)
+
+
+@admin.register(ReadNum)
+class ReadNumAdmin(admin.ModelAdmin):
+    list_display = ('read_num', 'blog')
+
+ # views中
+def blog_detail(request, blog_pk):
+    if not request.COOKIES.get('blog_%s_read' % blog_pk):
+        if ReadNum.objects.filter(blog=blog).count():
+            #  存在记录
+            readnum = ReadNum.objects.get(blog=blog)
+        else:
+            # 不存在记录
+            readnum = ReadNum(blog=blog)
+        # 计数加一
+        readnum.read_num += 1
+        readnum.save()
+
+    response = render(request, 'blog_detail.html', context)
+    response.set_cookie('blog_%s_read' % blog_pk, 'true')
+    return response
+
+```
+
+3.设置为通用的计数模型，可以对任意模型计数
 

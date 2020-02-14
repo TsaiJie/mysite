@@ -1,6 +1,6 @@
 from django.db.models import Count
 from django.shortcuts import render, get_object_or_404
-from .models import Blog, BlogType
+from .models import Blog, BlogType, ReadNum
 from django.conf import settings
 # 引入分页器
 from django.core.paginator import Paginator
@@ -106,8 +106,15 @@ def blog_detail(request, blog_pk):
     context['blog'] = blog
     blog = get_object_or_404(Blog, pk=blog_pk)
     if not request.COOKIES.get('blog_%s_read' % blog_pk):
-        blog.read_num += 1
-        blog.save()
+        if ReadNum.objects.filter(blog=blog).count():
+            #  存在记录
+            readnum = ReadNum.objects.get(blog=blog)
+        else:
+            # 不存在记录
+            readnum = ReadNum(blog=blog)
+        # 计数加一
+        readnum.read_num += 1
+        readnum.save()
 
     response = render(request, 'blog_detail.html', context)
     response.set_cookie('blog_%s_read' % blog_pk, 'true')
