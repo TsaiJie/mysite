@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.cache import cache
 from django.contrib import auth
+from django.urls import reverse
 
 
 def get_7_data_hot_blogs():
@@ -46,8 +47,10 @@ def login(request):
     username = request.POST.get('username', '')
     password = request.POST.get('password', '')
     user = auth.authenticate(request, username=username, password=password)
+    # 获取请求头的信息
+    referer = request.META.get('HTTP_REFERER', reverse('home'))
     if user is not None:
         auth.login(request, user)
-        return redirect('/')
+        return redirect(referer)
     else:
         return render(request, 'error.html', {"message": "用户名或密码不正确"})

@@ -1,9 +1,11 @@
 from django.db.models import Count
 from django.shortcuts import render, get_object_or_404
-
+from django.contrib.contenttypes.models import ContentType
+from comment.models import Comment
 from read_statistics.utils import read_statistics_once_read
 from .models import Blog, BlogType
 from django.conf import settings
+
 # 引入分页器
 from django.core.paginator import Paginator
 
@@ -112,6 +114,9 @@ def blog_detail(request, blog_pk):
     context['blog'] = blog
     blog = get_object_or_404(Blog, pk=blog_pk)
     read_cookie_key = read_statistics_once_read(request, blog)
+    blog_content_type = ContentType.objects.get_for_model(blog)
+    comments = Comment.objects.filter(content_type=blog_content_type, object_id=blog.pk)
+    context['comments'] = comments
 
     response = render(request, 'blog_detail.html', context)
     response.set_cookie(read_cookie_key, 'true', max_age=600)  # 阅读cookie标记
