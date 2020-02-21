@@ -350,3 +350,29 @@ def blog_detail(request, blog_pk):
     return response
 ```
 
+### 使用数据库缓存
+
+https://docs.djangoproject.com/zh-hans/2.2/topics/cache/
+
+```python
+# 数据库缓存设置
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
+
+from django.core.cache import cache
+
+hot_blogs_for_7_days = cache.get('hot_blogs_for_7_days')
+    if hot_blogs_for_7_days is None:
+        hot_blogs_for_7_days = get_7_data_hot_blogs()
+        cache.set('hot_blogs_for_7_days', hot_blogs_for_7_days, 60)
+        print('计算缓存')
+    else:
+        print('use 缓存')
+```
+
+
+

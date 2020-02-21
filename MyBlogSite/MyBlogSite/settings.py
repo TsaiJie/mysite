@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # 自己的
     'blog.apps.BlogConfig',
     'read_statistics.apps.ReadStatisticsConfig',
+    'comment.apps.CommentConfig'
 
 ]
 
