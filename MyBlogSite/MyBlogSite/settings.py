@@ -136,10 +136,28 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # 配置ckeditor
 CKEDITOR_UPLOAD_PATH = 'upload/'
+# 配置评论表单的 ckeditor
+CKEDITOR_CONFIGS = {
+    'default': {},
+    'comment_ckeditor': {
+        'toolbar': 'custom',
+        'toolbar_custom':[
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
+            ['TextColor', 'BGColor', 'Removeformat'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['Smiley','SpecialChar', 'Blockquote']
+        ],
+        'width': 'auto',
+        'height': '180',
+        'tabSpaces': 4,
+        'removePlugins':'elementspath',
+        'resize_enabled':False
+    }
+}
 
 # 自定义参数
 EACH_PAGE_BLOGS_NUMBER = 7
-
 
 # 数据库缓存设置
 CACHES = {

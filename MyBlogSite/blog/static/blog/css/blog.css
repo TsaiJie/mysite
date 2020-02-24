@@ -39,3 +39,7 @@ li {
     border-bottom: 1px solid #ccc;
     padding-bottom: 0.4em;
 }
+
+.django-ckeditor-widget {
+    width: 100%;
+}

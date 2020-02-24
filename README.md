@@ -376,3 +376,46 @@ hot_blogs_for_7_days = cache.get('hot_blogs_for_7_days')
 
 
 
+### 评论框设置为富文本
+
+https://github.com/django-ckeditor/django-ckeditor  Widget
+
+```html
+html文件
+<script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+<script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+```
+
+```python
+# form文件
+from django import forms
+from ckeditor.widgets import CKEditorWidget
+class CommentForm(forms.Form):
+    content_type = forms.CharField(widget=forms.HiddenInput)
+    object_id = forms.IntegerField(widget=forms.HiddenInput)
+    text = forms.CharField(widget=CKEditorWidget(config_name='comment_ckeditor'))
+```
+
+```py
+
+# 配置评论表单的 ckeditor
+CKEDITOR_CONFIGS = {
+    'default': {},
+    'comment_ckeditor': {
+        'toolbar': 'custom',
+        'toolbar_custom':[
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
+            ['TextColor', 'BGColor', 'Removeformat'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['Smiley','SpecialChar', 'Blockquote']
+        ],
+        'width': 'auto',
+        'height': '180',
+        'tabSpaces': 4,
+        'removePlugins':'elementspath',
+        'resize_enabled':False
+    }
+}
+```
+

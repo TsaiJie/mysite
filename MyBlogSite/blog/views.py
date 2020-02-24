@@ -5,6 +5,7 @@ from comment.models import Comment
 from read_statistics.utils import read_statistics_once_read
 from .models import Blog, BlogType
 from django.conf import settings
+from comment.forms import CommentForm
 
 # 引入分页器
 from django.core.paginator import Paginator
@@ -114,9 +115,16 @@ def blog_detail(request, blog_pk):
     context['blog'] = blog
     blog = get_object_or_404(Blog, pk=blog_pk)
     read_cookie_key = read_statistics_once_read(request, blog)
+    # blog_content_type 是一个类<class 'django.contrib.contenttypes.models.ContentType'> blog | blog
+    # blog_content_type.model <class 'str'>是一个字符串 blog
     blog_content_type = ContentType.objects.get_for_model(blog)
     comments = Comment.objects.filter(content_type=blog_content_type, object_id=blog.pk)
     context['comments'] = comments
+    # 用form评论表单替换HTML评论表单
+    initial_data = {}
+    initial_data['content_type'] = blog_content_type.model
+    initial_data['object_id'] = blog_pk
+    context['comment_form'] = CommentForm(initial=initial_data)
 
     response = render(request, 'blog_detail.html', context)
     response.set_cookie(read_cookie_key, 'true', max_age=600)  # 阅读cookie标记
