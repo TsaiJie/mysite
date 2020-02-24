@@ -118,12 +118,13 @@ def blog_detail(request, blog_pk):
     # blog_content_type 是一个类<class 'django.contrib.contenttypes.models.ContentType'> blog | blog
     # blog_content_type.model <class 'str'>是一个字符串 blog
     blog_content_type = ContentType.objects.get_for_model(blog)
-    comments = Comment.objects.filter(content_type=blog_content_type, object_id=blog.pk)
-    context['comments'] = comments
+    comments = Comment.objects.filter(content_type=blog_content_type, object_id=blog.pk, parent=None)
+    context['comments'] = comments.order_by('-comment_time')
     # 用form评论表单替换HTML评论表单
     initial_data = {}
     initial_data['content_type'] = blog_content_type.model
     initial_data['object_id'] = blog_pk
+    initial_data['reply_comment_id'] = 0
     context['comment_form'] = CommentForm(initial=initial_data)
 
     response = render(request, 'blog_detail.html', context)
